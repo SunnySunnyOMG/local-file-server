@@ -1,0 +1,16 @@
+{
+  "name": "local-file-server",
+  "version": "0.0.1",
+  "description": "for upload file automatically",
+  "main": "index.js",
+  "dependencies": {
+    "mime": "^2.3.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "zhexu",
+  "license": "MIT"
+}
