@@ -20,31 +20,26 @@ async function localFiles(response, request) {
     response.end('missing: dir')
   } else try {
     console.log('got get file request');
-    let fileNames = await fsp.readdir(dir);
-    let metadatas = [];
-    if (fileNames) {
-      for (let i = 0; i < fileNames.length; i++) {
+    let names = await fsp.readdir(dir);
+    let fileMetadatas = [];
+    let folderMetadatas = [];
+    if (names) {
+      for (let i = 0; i < names.length; i++) {
         // abosolute path
-        let filePath = path.join(dir, fileNames[i]);
+        let filePath = path.join(dir, names[i]);
         // read metadata
         let stats = await fsp.stat(filePath);
+
         if (stats.isFile()) {
-          metadatas.push({
-            name: fileNames[i],
-            size: stats.size,
-            type: mime.getType(fileNames[i]),
-            created_at: stats.birthtime
-          })
-          console.log('read file:', {
-            name: fileNames[i],
-            size: stats.size,
-            type: mime.getType(fileNames[i]),
-            created_at: stats.birthtime
-          })
+          fileMetadatas.push(_getMetadata(stats, names[i]))
         }
+        if (stats.isDirectory()) {
+          folderMetadatas.push(_getMetadata(stats, names[i]))
+        }
+
       }
       response.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
-      response.end(JSON.stringify({ files: metadatas }));
+      response.end(JSON.stringify({ files: fileMetadatas, folders: folderMetadatas }));
     } else {
       _notFound(response);
     }
@@ -64,6 +59,15 @@ function localFile(response, request) {
   stream.on('end', () => response.end());
   // on error: usually invalid path
   stream.on('error', err => _notFound(response, err))
+}
+
+function _getMetadata(stats, name) {
+  return {
+    name,
+    size: stats.size,
+    type: mime.getType(name),
+    created_at: stats.birthtime
+  }
 }
 
 function _notFound(response, reason) {
