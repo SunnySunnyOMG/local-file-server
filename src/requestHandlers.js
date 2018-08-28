@@ -19,7 +19,7 @@ async function localFiles(response, request) {
     response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
     response.end('missing: dir')
   } else try {
-    console.log('got get file request');
+    //console.log('got get file request');
     let names = await fsp.readdir(dir);
     let fileMetadatas = [];
     let folderMetadatas = [];
@@ -52,6 +52,7 @@ async function localFiles(response, request) {
 
 function localFile(response, request) {
   let { fileName, dir } = url.parse(request.url, true).query;
+  //console.log(fileName, path.join(dir, fileName))
   let stream = fs.createReadStream(path.join(dir, fileName));
   // This will wait until we know the readable stream is actually valid before piping
   stream.on('open', () => { response.writeHead(200, { "Content-Type": mime.getType(fileName) }); stream.pipe(response) });
